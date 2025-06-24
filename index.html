@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Keuangan Cuci Sepatu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .summary-card p {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💼 Aplikasi Keuangan Cuci Sepatu</h1>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('transaksi')">Transaksi Baru</button>
+            <button class="tab" onclick="switchTab('pelanggan')">Data Pelanggan</button>
+            <button class="tab" onclick="switchTab('laporan')">Laporan Keuangan</button>
+            <button class="tab" onclick="switchTab('layanan')">Jenis Layanan</button>
+        </div>
+
+        <!-- Tab Transaksi -->
+        <div id="transaksi" class="tab-content active">
+            <form id="formTransaksi">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Pelanggan:</label>
+                        <select id="pelangganTransaksi" required>
+                            <option value="">Pilih Pelanggan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal:</label>
+                        <input type="date" id="tanggalTransaksi" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Jenis Layanan:</label>
+                        <select id="layananTransaksi" required onchange="updateHarga()">
+                            <option value="">Pilih Layanan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Pasang:</label>
+                        <input type="number" id="jumlahPasang" min="1" value="1" required onchange="updateTotal()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Harga per Pasang:</label>
+                        <input type="number" id="hargaPerPasang" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Harga:</label>
+                        <input type="number" id="totalHarga" readonly>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Catatan:</label>
+                    <textarea id="catatanTransaksi" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
+                </div>
+
+                <button type="submit" class="btn">Simpan Transaksi</button>
+            </form>
+
+            <h3 style="margin-top: 40px; margin-bottom: 20px;">Transaksi Terbaru</h3>
+            <div id="transaksiTerbaru"></div>
+        </div>
+
+        <!-- Tab Pelanggan -->
+        <div id="pelanggan" class="tab-content">
+            <button class="btn" onclick="showModalPelanggan()">+ Tambah Pelanggan</button>
+            
+            <div class="filter-controls">
+                <input type="text" id="cariPelanggan" placeholder="Cari nama atau telepon..." style="flex: 1; max-width: 300px;">
+            </div>
+
+            <div id="daftarPelanggan"></div>
+        </div>
+
+        <!-- Tab Laporan -->
+        <div id="laporan" class="tab-content">
+            <div class="filter-controls">
+                <input type="month" id="filterBulan">
+                <select id="filterPelanggan">
+                    <option value="">Semua Pelanggan</option>
+                </select>
+                <button class="btn btn-secondary" onclick="resetFilter()">Reset</button>
+                <button class="btn" onclick="exportData()">Export Data</button>
+                <button class="btn btn-secondary" onclick="importData()">Import Data</button>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>Total Pendapatan</h3>
+                    <p id="totalPendapatan">Rp 0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Transaksi</h3>
+                    <p id="totalTransaksi">0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Pelanggan</h3>
+                    <p id="totalPelanggan">0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Rata-rata per Transaksi</h3>
+                    <p id="rataRataTransaksi">Rp 0</p>
+                </div>
+            </div>
+
+            <h3>Detail Transaksi</h3>
+            <div id="laporanTransaksi"></div>
+        </div>
+
+        <!-- Tab Layanan -->
+        <div id="layanan" class="tab-content">
+            <button class="btn" onclick="showModalLayanan()">+ Tambah Layanan</button>
+            <div id="daftarLayanan"></div>
+        </div>
+    </div>
+
+    <!-- Modal Pelanggan -->
+    <div id="modalPelanggan" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tambah/Edit Pelanggan</h2>
+                <button class="close-btn" onclick="closeModal('modalPelanggan')">&times;</button>
+            </div>
+            <form id="formPelanggan">
+                <input type="hidden" id="pelangganId">
+                <div class="form-group">
+                    <label>Nama:</label>
+                    <input type="text" id="namaPelanggan" required>
+                </div>
+                <div class="form-group">
+                    <label>Telepon:</label>
+                    <input type="tel" id="teleponPelanggan" required>
+                </div>
+                <div class="form-group">
+                    <label>Alamat:</label>
+                    <textarea id="alamatPelanggan" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn">Simpan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Layanan -->
+    <div id="modalLayanan" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tambah/Edit Layanan</h2>
+                <button class="close-btn" onclick="closeModal('modalLayanan')">&times;</button>
+            </div>
+            <form id="formLayanan">
+                <input type="hidden" id="layananId">
+                <div class="form-group">
+                    <label>Nama Layanan:</label>
+                    <input type="text" id="namaLayanan" required>
+                </div>
+                <div class="form-group">
+                    <label>Harga:</label>
+                    <input type="number" id="hargaLayanan" required>
+                </div>
+                <div class="form-group">
+                    <label>Deskripsi:</label>
+                    <textarea id="deskripsiLayanan" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn">Simpan</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let pelangganData = [];
+        let transaksiData = [];
+        let layananData = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            setupEventListeners();
+            setDefaultDate();
+            renderAll();
+        });
+
+        function loadData() {
+            // Load data from localStorage
+            try {
+                pelangganData = JSON.parse(localStorage.getItem('pelangganData') || '[]');
+                transaksiData = JSON.parse(localStorage.getItem('transaksiData') || '[]');
+                layananData = JSON.parse(localStorage.getItem('layananData') || '[]');
+                
+                // Default layanan jika belum ada
+                if (layananData.length === 0) {
+                    layananData = [
+                        { id: 1, nama: 'Cuci Biasa', harga: 25000, deskripsi: 'Cuci sepatu standar' },
+                        { id: 2, nama: 'Cuci Premium', harga: 35000, deskripsi: 'Cuci dengan treatment khusus' },
+                        { id: 3, nama: 'Deep Cleaning', harga: 50000, deskripsi: 'Pembersihan menyeluruh' }
+                    ];
+                    saveData();
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Jika ada error, gunakan data kosong
+                pelangganData = [];
+                transaksiData = [];
+                layananData = [
+                    { id: 1, nama: 'Cuci Biasa', harga: 25000, deskripsi: 'Cuci sepatu standar' },
+                    { id: 2, nama: 'Cuci Premium', harga: 35000, deskripsi: 'Cuci dengan treatment khusus' },
+                    { id: 3, nama: 'Deep Cleaning', harga: 50000, deskripsi: 'Pembersihan menyeluruh' }
+                ];
+            }
+        }
+
+        function saveData() {
+            // Save data to localStorage
+            localStorage.setItem('pelangganData', JSON.stringify(pelangganData));
+            localStorage.setItem('transaksiData', JSON.stringify(transaksiData));
+            localStorage.setItem('layananData', JSON.stringify(layananData));
+        }
+
+        function setupEventListeners() {
+            document.getElementById('formTransaksi').addEventListener('submit', simpanTransaksi);
+            document.getElementById('formPelanggan').addEventListener('submit', simpanPelanggan);
+            document.getElementById('formLayanan').addEventListener('submit', simpanLayanan);
+            document.getElementById('cariPelanggan').addEventListener('input', renderPelanggan);
+            document.getElementById('filterBulan').addEventListener('change', renderLaporan);
+            document.getElementById('filterPelanggan').addEventListener('change', renderLaporan);
+        }
+
+        function setDefaultDate() {
+            document.getElementById('tanggalTransaksi').valueAsDate = new Date();
+            document.getElementById('filterBulan').value = new Date().toISOString().substr(0, 7);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toLocaleString('id-ID');
+        }
+
+        function generateId() {
+            return Date.now() + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Transaksi Functions
+        function simpanTransaksi(e) {
+            e.preventDefault();
+            
+            const transaksi = {
+                id: generateId(),
+                pelangganId: document.getElementById('pelangganTransaksi').value,
+                tanggal: document.getElementById('tanggalTransaksi').value,
+                layananId: document.getElementById('layananTransaksi').value,
+                jumlahPasang: parseInt(document.getElementById('jumlahPasang').value),
+                hargaPerPasang: parseInt(document.getElementById('hargaPerPasang').value),
+                totalHarga: parseInt(document.getElementById('totalHarga').value),
+                catatan: document.getElementById('catatanTransaksi').value,
+                createdAt: new Date().toISOString()
+            };
+            
+            transaksiData.push(transaksi);
+            saveData();
+            
+            alert('Transaksi berhasil disimpan!');
+            document.getElementById('formTransaksi').reset();
+            setDefaultDate();
+            renderAll();
+        }
+
+        function updateHarga() {
+            const layananId = document.getElementById('layananTransaksi').value;
+            const layanan = layananData.find(l => l.id == layananId);
+            
+            if (layanan) {
+                document.getElementById('hargaPerPasang').value = layanan.harga;
+                updateTotal();
+            }
+        }
+
+        function updateTotal() {
+            const harga = parseInt(document.getElementById('hargaPerPasang').value) || 0;
+            const jumlah = parseInt(document.getElementById('jumlahPasang').value) || 0;
+            document.getElementById('totalHarga').value = harga * jumlah;
+        }
+
+        // Pelanggan Functions
+        function showModalPelanggan(pelanggan = null) {
+            if (pelanggan) {
+                document.getElementById('pelangganId').value = pelanggan.id;
+                document.getElementById('namaPelanggan').value = pelanggan.nama;
+                document.getElementById('teleponPelanggan').value = pelanggan.telepon;
+                document.getElementById('alamatPelanggan').value = pelanggan.alamat;
+            } else {
+                document.getElementById('formPelanggan').reset();
+                document.getElementById('pelangganId').value = '';
+            }
+            
+            document.getElementById('modalPelanggan').style.display = 'flex';
+        }
+
+        function simpanPelanggan(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('pelangganId').value;
+            const pelanggan = {
+                id: id || generateId(),
+                nama: document.getElementById('namaPelanggan').value,
+                telepon: document.getElementById('teleponPelanggan').value,
+                alamat: document.getElementById('alamatPelanggan').value
+            };
+            
+            if (id) {
+                const index = pelangganData.findIndex(p => p.id === id);
+                pelangganData[index] = pelanggan;
+            } else {
+                pelangganData.push(pelanggan);
+            }
+            
+            saveData();
+            closeModal('modalPelanggan');
+            renderAll();
+        }
+
+        function hapusPelanggan(id) {
+            if (confirm('Yakin ingin menghapus pelanggan ini?')) {
+                pelangganData = pelangganData.filter(p => p.id !== id);
+                saveData();
+                renderAll();
+            }
+        }
+
+        // Layanan Functions
+        function showModalLayanan(layanan = null) {
+            if (layanan) {
+                document.getElementById('layananId').value = layanan.id;
+                document.getElementById('namaLayanan').value = layanan.nama;
+                document.getElementById('hargaLayanan').value = layanan.harga;
+                document.getElementById('deskripsiLayanan').value = layanan.deskripsi;
+            } else {
+                document.getElementById('formLayanan').reset();
+                document.getElementById('layananId').value = '';
+            }
+            
+            document.getElementById('modalLayanan').style.display = 'flex';
+        }
+
+        function simpanLayanan(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('layananId').value;
+            const layanan = {
+                id: id || generateId(),
+                nama: document.getElementById('namaLayanan').value,
+                harga: parseInt(document.getElementById('hargaLayanan').value),
+                deskripsi: document.getElementById('deskripsiLayanan').value
+            };
+            
+            if (id) {
+                const index = layananData.findIndex(l => l.id == id);
+                layananData[index] = layanan;
+            } else {
+                layananData.push(layanan);
+            }
+            
+            saveData();
+            closeModal('modalLayanan');
+            renderAll();
+        }
+
+        function hapusLayanan(id) {
+            if (confirm('Yakin ingin menghapus layanan ini?')) {
+                layananData = layananData.filter(l => l.id != id);
+                saveData();
+                renderAll();
+            }
+        }
+
+        // Render Functions
+        function renderAll() {
+            renderPelangganSelect();
+            renderLayananSelect();
+            renderTransaksiTerbaru();
+            renderPelanggan();
+            renderLayanan();
+            renderLaporan();
+            updateSummary();
+        }
+
+        function renderPelangganSelect() {
+            const select = document.getElementById('pelangganTransaksi');
+            const filterSelect = document.getElementById('filterPelanggan');
+            
+            select.innerHTML = '<option value="">Pilih Pelanggan</option>';
+            filterSelect.innerHTML = '<option value="">Semua Pelanggan</option>';
+            
+            pelangganData.forEach(pelanggan => {
+                select.innerHTML += `<option value="${pelanggan.id}">${pelanggan.nama}</option>`;
+                filterSelect.innerHTML += `<option value="${pelanggan.id}">${pelanggan.nama}</option>`;
+            });
+        }
+
+        function renderLayananSelect() {
+            const select = document.getElementById('layananTransaksi');
+            select.innerHTML = '<option value="">Pilih Layanan</option>';
+            
+            layananData.forEach(layanan => {
+                select.innerHTML += `<option value="${layanan.id}">${layanan.nama} - ${formatRupiah(layanan.harga)}</option>`;
+            });
+        }
+
+        function renderTransaksiTerbaru() {
+            const container = document.getElementById('transaksiTerbaru');
+            const recent = transaksiData.slice(-5).reverse();
+            
+            if (recent.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Belum ada transaksi</p></div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>Tanggal</th><th>Pelanggan</th><th>Layanan</th><th>Total</th></tr></thead><tbody>';
+            
+            recent.forEach(t => {
+                const pelanggan = pelangganData.find(p => p.id === t.pelangganId);
+                const layanan = layananData.find(l => l.id == t.layananId);
+                
+                html += `
+                    <tr>
+                        <td>${new Date(t.tanggal).toLocaleDateString('id-ID')}</td>
+                        <td>${pelanggan ? pelanggan.nama : 'Unknown'}</td>
+                        <td>${layanan ? layanan.nama : 'Unknown'}</td>
+                        <td>${formatRupiah(t.totalHarga)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderPelanggan() {
+            const container = document.getElementById('daftarPelanggan');
+            const searchTerm = document.getElementById('cariPelanggan').value.toLowerCase();
+            
+            const filtered = pelangganData.filter(p => 
+                p.nama.toLowerCase().includes(searchTerm) || 
+                p.telepon.includes(searchTerm)
+            );
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Tidak ada pelanggan</p></div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>Nama</th><th>Telepon</th><th>Alamat</th><th>Total Transaksi</th><th>Aksi</th></tr></thead><tbody>';
+            
+            filtered.forEach(pelanggan => {
+                const totalTransaksi = transaksiData.filter(t => t.pelangganId === pelanggan.id).length;
+                
+                html += `
+                    <tr>
+                        <td>${pelanggan.nama}</td>
+                        <td>${pelanggan.telepon}</td>
+                        <td>${pelanggan.alamat || '-'}</td>
+                        <td>${totalTransaksi}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-secondary" onclick='showModalPelanggan(${JSON.stringify(pelanggan)})'>Edit</button>
+                                <button class="btn btn-danger" onclick="hapusPelanggan('${pelanggan.id}')">Hapus</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderLayanan() {
+            const container = document.getElementById('daftarLayanan');
+            
+            if (layananData.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Tidak ada layanan</p></div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>Nama Layanan</th><th>Harga</th><th>Deskripsi</th><th>Aksi</th></tr></thead><tbody>';
+            
+            layananData.forEach(layanan => {
+                html += `
+                    <tr>
+                        <td>${layanan.nama}</td>
+                        <td>${formatRupiah(layanan.harga)}</td>
+                        <td>${layanan.deskripsi || '-'}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-secondary" onclick='showModalLayanan(${JSON.stringify(layanan)})'>Edit</button>
+                                <button class="btn btn-danger" onclick="hapusLayanan('${layanan.id}')">Hapus</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderLaporan() {
+            const container = document.getElementById('laporanTransaksi');
+            const filterBulan = document.getElementById('filterBulan').value;
+            const filterPelanggan = document.getElementById('filterPelanggan').value;
+            
+            let filtered = transaksiData;
+            
+            if (filterBulan) {
+                filtered = filtered.filter(t => t.tanggal.startsWith(filterBulan));
+            }
+            
+            if (filterPelanggan) {
+                filtered = filtered.filter(t => t.pelangganId === filterPelanggan);
+            }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Tidak ada transaksi untuk filter ini</p></div>';
+                updateSummary(filtered);
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>Tanggal</th><th>Pelanggan</th><th>Layanan</th><th>Jumlah</th><th>Harga/Unit</th><th>Total</th><th>Catatan</th></tr></thead><tbody>';
+            
+            filtered.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).forEach(t => {
+                const pelanggan = pelangganData.find(p => p.id === t.pelangganId);
+                const layanan = layananData.find(l => l.id == t.layananId);
+                
+                html += `
+                    <tr>
+                        <td>${new Date(t.tanggal).toLocaleDateString('id-ID')}</td>
+                        <td>${pelanggan ? pelanggan.nama : 'Unknown'}</td>
+                        <td>${layanan ? layanan.nama : 'Unknown'}</td>
+                        <td>${t.jumlahPasang} pasang</td>
+                        <td>${formatRupiah(t.hargaPerPasang)}</td>
+                        <td><strong>${formatRupiah(t.totalHarga)}</strong></td>
+                        <td>${t.catatan || '-'}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+            updateSummary(filtered);
+        }
+
+        function updateSummary(data = null) {
+            const filtered = data || transaksiData;
+            
+            const totalPendapatan = filtered.reduce((sum, t) => sum + t.totalHarga, 0);
+            const totalTransaksi = filtered.length;
+            const totalPelanggan = pelangganData.length;
+            const rataRata = totalTransaksi > 0 ? totalPendapatan / totalTransaksi : 0;
+            
+            document.getElementById('totalPendapatan').textContent = formatRupiah(totalPendapatan);
+            document.getElementById('totalTransaksi').textContent = totalTransaksi;
+            document.getElementById('totalPelanggan').textContent = totalPelanggan;
+            document.getElementById('rataRataTransaksi').textContent = formatRupiah(Math.round(rataRata));
+        }
+
+        function resetFilter() {
+            document.getElementById('filterBulan').value = '';
+            document.getElementById('filterPelanggan').value = '';
+            renderLaporan();
+        }
+
+        function exportData() {
+            const data = {
+                pelanggan: pelangganData,
+                transaksi: transaksiData,
+                layanan: layananData,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup-cucisepatu-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Fungsi import data
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        if (confirm('Ini akan mengganti semua data yang ada. Lanjutkan?')) {
+                            pelangganData = data.pelanggan || [];
+                            transaksiData = data.transaksi || [];
+                            layananData = data.layanan || [];
+                            
+                            saveData();
+                            renderAll();
+                            alert('Data berhasil di-import!');
+                        }
+                    } catch (error) {
+                        alert('Error membaca file. Pastikan file backup valid.');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
