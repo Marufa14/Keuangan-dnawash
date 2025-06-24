@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Aplikasi Keuangan Cuci Sepatu</title>
     <style>
         * {
@@ -259,6 +259,15 @@
         }
 
         @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
             .form-row {
                 grid-template-columns: 1fr;
             }
@@ -266,10 +275,55 @@
             .tabs {
                 overflow-x: auto;
                 white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 10px;
+            }
+            
+            .tab {
+                padding: 10px 16px;
+                font-size: 14px;
+                min-width: fit-content;
             }
             
             table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            th, td {
+                padding: 8px;
+                min-width: 80px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .action-buttons .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 10px 16px;
                 font-size: 14px;
+            }
+            
+            input, select, textarea {
+                font-size: 16px; /* Prevent zoom on iOS */
             }
         }
     </style>
@@ -742,7 +796,7 @@
                         <td>${pelanggan.telepon}</td>
                         <td>${pelanggan.alamat || '-'}</td>
                         <td>${totalTransaksi}</td>
-                        <td>
+                        <td style="min-width: 150px;">
                             <div class="action-buttons">
                                 <button class="btn btn-secondary" onclick='showModalPelanggan(${JSON.stringify(pelanggan)})'>Edit</button>
                                 <button class="btn btn-danger" onclick="hapusPelanggan('${pelanggan.id}')">Hapus</button>
@@ -772,7 +826,7 @@
                         <td>${layanan.nama}</td>
                         <td>${formatRupiah(layanan.harga)}</td>
                         <td>${layanan.deskripsi || '-'}</td>
-                        <td>
+                        <td style="min-width: 150px;">
                             <div class="action-buttons">
                                 <button class="btn btn-secondary" onclick='showModalLayanan(${JSON.stringify(layanan)})'>Edit</button>
                                 <button class="btn btn-danger" onclick="hapusLayanan('${layanan.id}')">Hapus</button>
